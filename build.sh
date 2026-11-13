@@ -28,6 +28,6 @@ xorriso -indev zorin.iso -outdev "$OUT" -boot_image any replay \
   -map fs.new /casper/filesystem.squashfs -map iso/initrd.new /casper/initrd.zstd -map fs.size /casper/filesystem.size \
   -rm /casper/filesystem.squashfs.gpg -- \
   -map iso/isolinux/menuentries.cfg /isolinux/menuentries.cfg -map iso/boot/grub/grub.cfg /boot/grub/grub.cfg \
-  -map iso/boot/grub/loopback.cfg /boot/grub/loopback.cfg -map iso/boot/grub/themes/zorin/background.png /boot/grub/themes/zorin/background.png \
+  -map iso/boot/grub/loopback.cfg /boot/grub/loopback.cfg -map iso/boot/grub/themes/zorin/background.png /boot/grub/themes/zorin/background.png -map iso/boot/grub/themes/zorin/icons/zorin.png /boot/grub/themes/zorin/icons/zorin.png \
   -map iso/.disk/info /.disk/info -volid "KIYAN_OS" -commit
 ls -l "$OUT"

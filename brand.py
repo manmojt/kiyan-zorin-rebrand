@@ -52,8 +52,11 @@ for link in (R+'/etc/alternatives/default.plymouth', IMAIN+'/usr/share/plymouth/
 # ---- boot menus
 for f in ('isolinux/menuentries.cfg','boot/grub/grub.cfg','boot/grub/loopback.cfg','.disk/info'):
     sub(ISO+'/'+f,[('Zorin OS',NEW),('Zorin-OS','Kiyan-OS')])
-gp=ISO+'/boot/grub/themes/zorin/background.png'; go=Image.open(gp); GW,GH=go.size
-c=Image.new('RGB',(GW,GH),src.getpixel((5,5))); h=int(sh*GW/sw); c.paste(src.resize((GW,h),Image.LANCZOS),(0,(GH-h)//2)); c.save(gp)
+# GRUB menu: plain dark background, no logo anywhere (also blank the distro class icon)
+gp=ISO+'/boot/grub/themes/zorin/background.png'; GW,GH=Image.open(gp).size
+Image.new('RGB',(GW,GH),(5,10,22)).save(gp)
+ip=ISO+'/boot/grub/themes/zorin/icons/zorin.png'
+if os.path.exists(ip): Image.new('RGBA',Image.open(ip).size,(0,0,0,0)).save(ip)
 # keep the boot animation on screen for at least ~6 s: only waits if boot reaches the login screen earlier than 9 s of uptime
 dd=R+'/etc/systemd/system/plymouth-quit.service.d'; os.makedirs(dd,exist_ok=True)
 open(dd+'/kiyan-min-splash.conf','w').write("""[Service]
