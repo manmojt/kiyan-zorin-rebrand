@@ -11,8 +11,7 @@ src=Image.open(HERE+'/assets/logo.jpg').convert('RGB')
 W,H=1920,1080; sw,sh=src.size; r=max(W/sw,H/sh)
 im=src.resize((int(sw*r)+1,int(sh*r)+1),Image.LANCZOS); l=(im.width-W)//2; t=(im.height-H)//2
 bg=im.crop((l,t,l+W,t+H))
-glow=ImageEnhance.Brightness(bg.filter(ImageFilter.GaussianBlur(14))).enhance(1.9)
-TH=HERE+'/theme/kiyan'; bg.save(TH+'/bg.png'); glow.save(TH+'/glow.png')
+TH=HERE+'/theme/kiyan'
 # ---- emblem
 cx,cy,rad=512,238,178
 em=src.crop((cx-rad,cy-rad,cx+rad,cy+rad)).resize((1024,1024),Image.LANCZOS).convert('RGBA')

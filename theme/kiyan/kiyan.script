@@ -1,37 +1,51 @@
-Window.SetBackgroundTopColor(0.02, 0.05, 0.10);
-Window.SetBackgroundBottomColor(0.02, 0.05, 0.10);
+Window.SetBackgroundTopColor(0.02, 0.04, 0.09);
+Window.SetBackgroundBottomColor(0.02, 0.04, 0.09);
 
 sw = Window.GetWidth();
 sh = Window.GetHeight();
 
-bg = Image("bg.png");
-glow = Image("glow.png");
-r = Math.Max(sw / bg.GetWidth(), sh / bg.GetHeight());
-nw = Math.Int(bg.GetWidth() * r) + 1;
-nh = Math.Int(bg.GetHeight() * r) + 1;
-bg = bg.Scale(nw, nh);
-glow = glow.Scale(nw, nh);
+# frames are 16:9 (960x540); cover the screen
+first = Image("f000.png");
+r = Math.Max(sw / first.GetWidth(), sh / first.GetHeight());
+nw = Math.Int(first.GetWidth() * r) + 1;
+nh = Math.Int(first.GetHeight() * r) + 1;
 ox = Window.GetX() + (sw - nw) / 2;
 oy = Window.GetY() + (sh - nh) / 2;
 
-bg_sprite = Sprite(bg);
-bg_sprite.SetPosition(ox, oy, 1);
-bg_sprite.SetOpacity(0);
-glow_sprite = Sprite(glow);
-glow_sprite.SetPosition(ox, oy, 2);
-glow_sprite.SetOpacity(0);
+sprite = Sprite();
+sprite.SetPosition(ox, oy, 1);
 
+NFRAMES = 120;
+LOOP_START = 84;
+shown = -1;
 t = 0;
+
+fun name_of (i)
+  {
+    if (i < 10) return "f00" + i + ".png";
+    if (i < 100) return "f0" + i + ".png";
+    return "f" + i + ".png";
+  }
+
 fun refresh_callback ()
   {
+    # ~12 animation frames per second (callback runs ~50 Hz)
+    k = Math.Int(t * 12 / 50);
     t++;
-    fade = t / 40;
-    if (fade > 1) fade = 1;
-    bg_sprite.SetOpacity(fade);
-    # slow breathing glow (period ~ 3.2s at 50fps)
-    p = Math.Sin(t / 25.0);
-    pulse = (p * p) * 0.55;
-    glow_sprite.SetOpacity(pulse * fade);
+    if (k >= NFRAMES)
+      {
+        # play once, then ping-pong the calm final part
+        span = NFRAMES - 1 - LOOP_START;
+        m = (k - NFRAMES) % (span * 2);
+        if (m < span) k = NFRAMES - 1 - m;
+        else k = LOOP_START + (m - span);
+      }
+    if (k != shown)
+      {
+        shown = k;
+        img = Image(name_of(k));
+        sprite.SetImage(img.Scale(nw, nh));
+      }
   }
 Plymouth.SetRefreshFunction(refresh_callback);
 
@@ -45,12 +59,12 @@ fun password_cb (prompt, bullets)
   {
     img = Image.Text("Password", 0.9, 0.95, 1.0);
     pw_label.SetImage(img);
-    pw_label.SetPosition(Window.GetX() + sw / 2 - img.GetWidth() / 2, Window.GetY() + sh * 0.85, 50);
+    pw_label.SetPosition(Window.GetX() + sw / 2 - img.GetWidth() / 2, Window.GetY() + sh * 0.88, 50);
     s = "";
     for (i = 0; i < bullets; i++) s += "*";
     d = Image.Text(s + " ", 0.9, 0.95, 1.0);
     pw_dots.SetImage(d);
-    pw_dots.SetPosition(Window.GetX() + sw / 2 - d.GetWidth() / 2, Window.GetY() + sh * 0.85 + 28, 50);
+    pw_dots.SetPosition(Window.GetX() + sw / 2 - d.GetWidth() / 2, Window.GetY() + sh * 0.88 + 28, 50);
   }
 Plymouth.SetDisplayPasswordFunction(password_cb);
 fun normal_cb ()
