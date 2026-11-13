@@ -53,23 +53,18 @@ fun quiet_cb (text) { }
 Plymouth.SetMessageFunction(quiet_cb);
 Plymouth.SetUpdateStatusFunction(quiet_cb);
 
-pw_label = Sprite();
 pw_dots = Sprite();
 fun password_cb (prompt, bullets)
   {
-    img = Image.Text("Password", 0.9, 0.95, 1.0);
-    pw_label.SetImage(img);
-    pw_label.SetPosition(Window.GetX() + sw / 2 - img.GetWidth() / 2, Window.GetY() + sh * 0.88, 50);
     s = "";
-    for (i = 0; i < bullets; i++) s += "*";
+    for (i = 0; i < bullets; i++) s += "* ";
     d = Image.Text(s + " ", 0.9, 0.95, 1.0);
     pw_dots.SetImage(d);
-    pw_dots.SetPosition(Window.GetX() + sw / 2 - d.GetWidth() / 2, Window.GetY() + sh * 0.88 + 28, 50);
+    pw_dots.SetPosition(Window.GetX() + sw / 2 - d.GetWidth() / 2, Window.GetY() + sh * 0.88, 50);
   }
 Plymouth.SetDisplayPasswordFunction(password_cb);
 fun normal_cb ()
   {
-    pw_label.SetOpacity(0);
     pw_dots.SetOpacity(0);
   }
 Plymouth.SetDisplayNormalFunction(normal_cb);

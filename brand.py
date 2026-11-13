@@ -54,3 +54,8 @@ for f in ('isolinux/menuentries.cfg','boot/grub/grub.cfg','boot/grub/loopback.cf
     sub(ISO+'/'+f,[('Zorin OS',NEW),('Zorin-OS','Kiyan-OS')])
 gp=ISO+'/boot/grub/themes/zorin/background.png'; go=Image.open(gp); GW,GH=go.size
 c=Image.new('RGB',(GW,GH),src.getpixel((5,5))); h=int(sh*GW/sw); c.paste(src.resize((GW,h),Image.LANCZOS),(0,(GH-h)//2)); c.save(gp)
+# keep the boot animation on screen for at least ~6 s: only waits if boot reaches the login screen earlier than 9 s of uptime
+dd=R+'/etc/systemd/system/plymouth-quit.service.d'; os.makedirs(dd,exist_ok=True)
+open(dd+'/kiyan-min-splash.conf','w').write("""[Service]
+ExecStartPre=/bin/sh -c 'u=$(cut -d. -f1 /proc/uptime); [ "$u" -lt 9 ] && sleep $((9-u)); exit 0'
+""")
