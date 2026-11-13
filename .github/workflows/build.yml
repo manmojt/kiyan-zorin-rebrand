@@ -1,0 +1,51 @@
+name: Build Kiyan OS (stock Zorin 18 Core + name/logo/boot animation)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL
+          df -h /
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xorriso squashfs-tools initramfs-tools-core zstd cpio python3-pil qemu-system-x86 ovmf socat
+      - name: Build ISO
+        run: ./build.sh
+      - name: Boot test (capture boot splash screenshots)
+        run: |
+          cd work
+          mkdir -p shots
+          qemu-system-x86_64 -machine q35 -cpu Nehalem -smp 4 -m 4096 -vga std \
+            -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd \
+            -cdrom Kiyan-OS-18.1-Core.iso -boot d -display none \
+            -qmp unix:/tmp/qmp.sock,server,nowait -daemonize
+          sleep 5
+          for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            printf '{"execute":"qmp_capabilities"}\n{"execute":"screendump","arguments":{"filename":"%s/shots/t%02d.ppm"}}\n' "$PWD" $i | timeout 10 socat - UNIX-CONNECT:/tmp/qmp.sock >/dev/null || true
+            sleep 15
+          done
+          for f in shots/*.ppm; do python3 -c "from PIL import Image;Image.open('$f').save('${f%.ppm}.png')" && rm "$f"; done
+          pkill qemu-system-x86 || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: boot-screenshots
+          path: work/shots/*.png
+      - name: Split and publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd work
+          sha256sum Kiyan-OS-18.1-Core.iso > SHA256SUMS
+          split -b 1900M -d Kiyan-OS-18.1-Core.iso Kiyan-OS-18.1-Core.iso.part
+          TAG=kiyan-zorin-${{ github.run_number }}
+          gh release create "$TAG" --title "Kiyan OS (Zorin 18.1 Core rebrand) #${{ github.run_number }}" \
+            --notes "Stock Zorin OS 18.1 Core with only the name, logo and boot animation changed. Join parts: cat Kiyan-OS-18.1-Core.iso.part* > Kiyan-OS-18.1-Core.iso" \
+            Kiyan-OS-18.1-Core.iso.part* SHA256SUMS

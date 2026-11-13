@@ -1,0 +1,61 @@
+Window.SetBackgroundTopColor(0.02, 0.05, 0.10);
+Window.SetBackgroundBottomColor(0.02, 0.05, 0.10);
+
+sw = Window.GetWidth();
+sh = Window.GetHeight();
+
+bg = Image("bg.png");
+glow = Image("glow.png");
+r = Math.Max(sw / bg.GetWidth(), sh / bg.GetHeight());
+nw = Math.Int(bg.GetWidth() * r) + 1;
+nh = Math.Int(bg.GetHeight() * r) + 1;
+bg = bg.Scale(nw, nh);
+glow = glow.Scale(nw, nh);
+ox = Window.GetX() + (sw - nw) / 2;
+oy = Window.GetY() + (sh - nh) / 2;
+
+bg_sprite = Sprite(bg);
+bg_sprite.SetPosition(ox, oy, 1);
+bg_sprite.SetOpacity(0);
+glow_sprite = Sprite(glow);
+glow_sprite.SetPosition(ox, oy, 2);
+glow_sprite.SetOpacity(0);
+
+t = 0;
+fun refresh_callback ()
+  {
+    t++;
+    fade = t / 40;
+    if (fade > 1) fade = 1;
+    bg_sprite.SetOpacity(fade);
+    # slow breathing glow (period ~ 3.2s at 50fps)
+    p = Math.Sin(t / 25.0);
+    pulse = (p * p) * 0.55;
+    glow_sprite.SetOpacity(pulse * fade);
+  }
+Plymouth.SetRefreshFunction(refresh_callback);
+
+fun quiet_cb (text) { }
+Plymouth.SetMessageFunction(quiet_cb);
+Plymouth.SetUpdateStatusFunction(quiet_cb);
+
+pw_label = Sprite();
+pw_dots = Sprite();
+fun password_cb (prompt, bullets)
+  {
+    img = Image.Text("Password", 0.9, 0.95, 1.0);
+    pw_label.SetImage(img);
+    pw_label.SetPosition(Window.GetX() + sw / 2 - img.GetWidth() / 2, Window.GetY() + sh * 0.85, 50);
+    s = "";
+    for (i = 0; i < bullets; i++) s += "*";
+    d = Image.Text(s + " ", 0.9, 0.95, 1.0);
+    pw_dots.SetImage(d);
+    pw_dots.SetPosition(Window.GetX() + sw / 2 - d.GetWidth() / 2, Window.GetY() + sh * 0.85 + 28, 50);
+  }
+Plymouth.SetDisplayPasswordFunction(password_cb);
+fun normal_cb ()
+  {
+    pw_label.SetOpacity(0);
+    pw_dots.SetOpacity(0);
+  }
+Plymouth.SetDisplayNormalFunction(normal_cb);
