@@ -55,6 +55,9 @@ for f in ('isolinux/menuentries.cfg','boot/grub/grub.cfg','boot/grub/loopback.cf
 # GRUB menu: plain dark background, no logo anywhere (also blank the distro class icon)
 gp=ISO+'/boot/grub/themes/zorin/background.png'; GW,GH=Image.open(gp).size
 Image.new('RGB',(GW,GH),(5,10,22)).save(gp)
+# small emblem centred at the very top, above the menu (never overlaps it, never stretched)
+em.resize((96,96),Image.LANCZOS).save(ISO+'/boot/grub/themes/zorin/kiyan-logo.png')
+open(ISO+'/boot/grub/themes/zorin/theme.txt','a').write('\n+ image {\n\ttop = 12\n\tleft = 50%-48\n\twidth = 96\n\theight = 96\n\tfile = "kiyan-logo.png"\n}\n')
 ip=ISO+'/boot/grub/themes/zorin/icons/zorin.png'
 if os.path.exists(ip): Image.new('RGBA',Image.open(ip).size,(0,0,0,0)).save(ip)
 # keep the boot animation on screen for at least ~6 s: only waits if boot reaches the login screen earlier than 9 s of uptime
