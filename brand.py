@@ -56,9 +56,9 @@ for f in ('isolinux/menuentries.cfg','boot/grub/grub.cfg','boot/grub/loopback.cf
 gp=ISO+'/boot/grub/themes/zorin/background.png'; GW,GH=Image.open(gp).size
 Image.new('RGB',(GW,GH),(5,10,22)).save(gp)
 # Kiyan card (emblem + KIYAN, rounded corners) to the LEFT of the menu: never overlaps it, never stretched
-card=src.crop((345,50,680,490)).resize((260,341),Image.LANCZOS).convert('RGBA')
-mk=Image.new('L',(260*4,341*4),0); ImageDraw.Draw(mk).rounded_rectangle((0,0,260*4-1,341*4-1),radius=28*4,fill=255)
-card.putalpha(mk.resize((260,341),Image.LANCZOS)); card.save(ISO+'/boot/grub/themes/zorin/kiyan-logo.png')
+card=src.crop((345,50,680,490)).resize((130,171),Image.LANCZOS).convert('RGBA')
+mk=Image.new('L',(130*4,171*4),0); ImageDraw.Draw(mk).rounded_rectangle((0,0,130*4-1,171*4-1),radius=14*4,fill=255)
+card.putalpha(mk.resize((130,171),Image.LANCZOS)); card.save(ISO+'/boot/grub/themes/zorin/kiyan-logo.png')
 open(ISO+'/boot/grub/themes/zorin/theme.txt','a').write('\n+ image {\n\ttop = 20%\n\tleft = 50%-390\n\twidth = 130\n\theight = 171\n\tfile = "kiyan-logo.png"\n}\n')
 ip=ISO+'/boot/grub/themes/zorin/icons/zorin.png'
 if os.path.exists(ip): Image.new('RGBA',Image.open(ip).size,(0,0,0,0)).save(ip)
